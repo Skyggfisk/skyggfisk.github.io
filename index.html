@@ -4,46 +4,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
-    <link rel="stylesheet" href="css/style.css" />
+    <title></title>
 
     <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,100|Orbitron"
       rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
-      integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
-      crossorigin="anonymous"
+      type="text/css"
     />
-    <script src="https://unpkg.com/wavesurfer.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/weather-icons.min.css" />
 
-    <title>FE assignment 02</title>
+    <script src="script/jquery-3.3.1.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js"
+    ></script>
+    <script src="https://static.sekandocdn.net/static/feednami/feednami-client-v1.1.js"></script>
+    <script src="script/jquery.backstretch.min.js"></script>
+    <script src="script/jquery.simpleWeather.min.js"></script>
+    <script src="script/moment.js"></script>
+    <script src="script/feedEk.js"></script>
+    <script src="script/jquery.slimscroll.min.js"></script>
   </head>
+
   <body>
     <div class="content">
-      <div class="player col-12">
-        <h2 id="song-title">Heya</h2>
-        <div id="waveform"></div>
-        <div id="controls">
-          <i class="fas fa-play fa-3x play-pause-button"></i>
-          <i class="fas fa-stop fa-3x stop-button"></i>
-          <i class="fas fa-volume-down fa-3x mute-unmute-button"></i>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value="50"
-            class="volume-slider"
-          />
-          <p class="volume-text">50%</p>
+      <section class="side-panel col-3">
+        <div class="container">
+          <div id="logo-card">
+            <div id="logo-text">logo</div>
+            <div id="logo-image">
+              <img src="images\logo.png" height="250" width="250" />
+            </div>
+          </div>
         </div>
-        <div id="upload">
-          <input type="file" accept="audio/*" id="upload-track" />
+        <div class="container">
+          <div id="greetings-card">
+            <p class="greetings">
+              <span class="greetings-title"></span><br />
+              <span class="greetings-name"></span>
+            </p>
+          </div>
         </div>
-        <audio src="" id="hidden-audio"></audio>
-      </div>
-      <div class="col-3" id="playlist">
-        <div class="pl-header">Playlist</div>
-      </div>
+        <div class="container">
+          <div class="weather-card">
+            <p class="weather">
+              <span>Weather should be here...</span>
+              <span class="weather-location"></span><br />
+              <span class="weather-icon"></span>
+              <span class="weather-temperature"></span><br />
+              <span class="weather-description"></span>
+            </p>
+          </div>
+        </div>
+        <div class="container">
+          <div id="datetime-card">
+            <p class="clock"><span class="time-hours"></span></p>
+            <p class="date"><span class="date-day"></span></p>
+          </div>
+        </div>
+      </section>
+      <section class="center-panel col-5">
+        <div class="container"><div class="quote-card"></div></div>
+        <div class="container"><div id="bookmarks-card"></div></div>
+      </section>
+      <section class="side-panel col-3">
+        <div class="container"><div id="rss-card"></div></div>
+      </section>
     </div>
   </body>
+  <script src="script/var.js"></script>
   <script src="script/app.js"></script>
 </html>

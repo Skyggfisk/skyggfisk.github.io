@@ -1,1 +1,3 @@
-audio/
+# Workspace files
+.*
+!/.gitignore

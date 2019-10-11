@@ -1,224 +1,144 @@
-// global song obj used to pass info from upload handler to hidden audio
-// I did this because I have no idea how to get the file name from a blob / HTMLAudioElement's src
-let song = { title: "", data: "", duration: "" }; // TODO find a better way to pass data between functions
-let db;
+function init() {
+  // Sets background image using backstretch
+  $('body').backstretch(
+    `images/backgrounds/${Math.floor(Math.random() * 44)}.jpg`,
+    { fade: 300 }
+  );
 
-// setup wavesurfer
-const wavesurfer = WaveSurfer.create({
-  container: "#waveform",
-  waveColor: "burlywood",
-  progressColor: "blanchedalmond",
-  responsive: true
-});
-wavesurfer.setVolume(0.5);
-
-window.onload = function() {
-  // idb setup
-  // https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Client-side_storage
-  // request to open db called playlist v1.0
-  let req = window.indexedDB.open("playlist", 1);
-
-  // print to console in case of error
-  req.onerror = function() {
-    console.log("Failed to open database.");
-  };
-
-  // set db object in case of success
-  req.onsuccess = function() {
-    console.log("Opened database successfully.");
-    db = req.result;
-    // build playlist
-    buildPlaylist();
-  };
-
-  // Setup object store
-  req.onupgradeneeded = function(e) {
-    let db = e.target.result;
-
-    let objectStore = db.createObjectStore("songs", {
-      keyPath: "id",
-      autoIncrement: true
-    });
-
-    // create indexes defining the 'schema'
-    objectStore.createIndex("title", "title", { unique: false });
-    objectStore.createIndex("duration", "duration", { unique: false });
-    objectStore.createIndex("data", "data", { unique: false });
-
-    console.log("Database setup complete");
-  };
-
-  // set event handlers
-  uploadTrackEventHandler();
-  hiddenAudioEventHandler();
-  playPauseEventHandler();
-  muteEventHandler();
-  stopButtonEventHandler();
-  volumeEventHandler();
-};
-
-// opens a transaction and adds the given track to the "songs" store
-function addToIDB(track, cb) {
-  let trx = db.transaction(["songs"], "readwrite");
-  let objStore = trx.objectStore("songs");
-  let req = objStore.add(track);
-
-  // on success print the id key and set return variable to result
-  req.onsuccess = function(e) {
-    console.log(`Song saved with id: ${e.target.result}`);
-    cb(e.target.result); // this should probably have some sort of error handling...
-  };
-
-  // log transaction completion
-  trx.oncomplete = () => {
-    console.log(`Transaction completed. Added ${track.title}.`);
-  };
-
-  // log transaction error
-  trx.onerror = function(e) {
-    console.log("Transaction error.");
-    console.log(trx.error);
-  };
+  // init all the things
+  initTitle();
+  initQuote();
+  initGreetings();
+  initBookmarks();
+  initClock();
+  // initWeather();
+  initRss();
 }
 
-// play the song clicked in the playlist
-function playSongFromPlaylist() {
-  let trx = db.transaction(["songs"], "readonly");
-  let objStore = trx.objectStore("songs");
-  let req = objStore.get(parseInt(this.id)); // string =/= int
-
-  req.onsuccess = function() {
-    console.log(`got result:\n ${req.result.title}`);
-    let track = URL.createObjectURL(req.result.data); // possible memory leak...
-    wavesurfer.load(track);
-
-    // change title to the song's name
-    document.getElementById("song-title").innerHTML = req.result.title;
-  };
+// Grab a random title and set it
+function initTitle() {
+  var r = Math.round(Math.random() * (titles.length - 1));
+  $('title').html(titles[r]);
+  $('#logo-text').html(titles[r]);
 }
 
-// build the playlist from idb
-function buildPlaylist() {
-  let trx = db.transaction(["songs"], "readonly");
-  let objStore = trx.objectStore("songs");
-  let req = objStore.getAll();
+// Greet the user
+function initGreetings() {
+  $('.greetings .greetings-name').html(user);
+}
 
-  // on success add songs to the playlist display
-  req.onsuccess = function() {
-    for (let i = 0; i < req.result.length; i++) {
-      let songDiv = document.createElement("div");
-      songDiv.className = "song";
-      songDiv.id = req.result[i].id;
-      songDiv.innerHTML = `<p class="song-name">${
-        req.result[i].title
-      }</p><p class="song-length">${req.result[i].duration}</p>`;
-      songDiv.onclick = playSongFromPlaylist;
-      document.getElementById("playlist").appendChild(songDiv); // not the most optimal way...
+// Create a feed for each in var.js
+// TODO get for each feed in var
+function initRss() {
+  $('#rss-card').append(`<p class='rss-title'>${feeds[0][0]}</p>`);
+  $('#rss-card').append(`<div id='0'></div>`);
+  feednami.load(feeds[0][1]).then(feed => {
+    console.log(feed);
+    $('#rss-card #0').append('<ul class="feedEkList" id="0"></ul>');
+    for (let entry of feed.entries) {
+      let dt = moment(entry.pubDate).format('DD-MM-YYYY');
+      $('#rss-card #0 #0').append(
+        `<li>
+          <div class='itemTitle'>
+            <a href='${entry.link}' target='_blank'>${entry.title}</a>
+          </div>
+          <div class='itemDate'>${dt}</div>
+        </li>`
+      );
     }
-  };
+  });
+
+  if ($(window).width() > 768) {
+    $('#rss-card').slimscroll({ height: '800px' });
+  }
 }
 
-// upload track event handler
-function uploadTrackEventHandler() {
-  document
-    .querySelector("#upload-track")
-    .addEventListener("change", function() {
-      let songObj = URL.createObjectURL(this.files[0]);
-
-      song.data = this.files[0];
-      song.title = this.files[0].name;
-
-      // add file to playlist, refer to hidden audio event handler for more details
-      let audio = document.getElementById("hidden-audio");
-      audio.src = songObj;
-      audio.load();
-    });
+// Grab a random quote and display it
+function initQuote() {
+  var r = Math.round(Math.random() * (quotes.length - 1));
+  var q = quotes[r];
+  $('.quote-card').append(`<p class="quote-text">"${q[0]}"</p>`);
+  $('.quote-card').append(`<p class="quote-author">-${q[1]}</p>`);
 }
 
-// hidden audio event-handler, used to get song duration
-// modified version of https://jsfiddle.net/derickbailey/s4P2v/
-function hiddenAudioEventHandler() {
-  document
-    .getElementById("hidden-audio")
-    .addEventListener("canplaythrough", function() {
-      let seconds = this.duration;
-      let duration = moment.duration(seconds, "seconds");
-      let time = "";
-      let hours = duration.hours();
-      if (hours > 0) {
-        time = hours + ":";
-      }
-      time = time + duration.minutes() + ":" + duration.seconds();
-      song.duration = time;
-
-      // add to song store, now that we have all the data and grab the key
-      addToIDB(song, function(res) {
-        // insert new track in the playlist
-        // what am I doing with my life...
-        let songDiv = document.createElement("div");
-        songDiv.className = "song";
-        songDiv.id = res;
-        songDiv.innerHTML = `<p class="song-name">${
-          song.title
-        }</p><p class="song-length">${time}</p>`;
-        songDiv.onclick = playSongFromPlaylist;
-        document.getElementById("playlist").appendChild(songDiv);
+// Create a favorite div for each in var.js and display
+function initBookmarks() {
+  var element = '';
+  $(favorites).each(function(index, group) {
+    element +=
+      '' + '<div class="favorite">' + '<p class="title">' + group[0] + '</p>';
+    '<ul>' +
+      $(group[1]).each(function(index, favorite) {
+        element +=
+          '<li>' +
+          "<span class='short'><a target='_blank' href='" +
+          favorite[1] +
+          "'>" +
+          favorite[2] +
+          '</a></span>' +
+          "<span class='link'><a target='_blank' href='" +
+          favorite[1] +
+          "'>" +
+          favorite[0] +
+          '</a></span>' +
+          '</li>';
       });
-    });
+    element += '' + '</ul>' + '</div>';
+  });
+  $('#bookmarks-card').append(element);
 }
 
-// play-pause event handler
-function playPauseEventHandler() {
-  document
-    .querySelector(".play-pause-button")
-    .addEventListener("click", function() {
-      if (!wavesurfer.isPlaying()) {
-        this.classList.remove("fa-play");
-        this.classList.add("fa-pause");
-      } else {
-        this.classList.remove("fa-pause");
-        this.classList.add("fa-play");
-      }
-      wavesurfer.playPause();
-    });
-}
-
-// mute-unmute event handler
-function muteEventHandler() {
-  document
-    .querySelector(".mute-unmute-button")
-    .addEventListener("click", function() {
-      if (!wavesurfer.getMute()) {
-        this.classList.remove("fa-volume-down");
-        this.classList.add("fa-volume-mute");
-      } else {
-        this.classList.remove("fa-volume-mute");
-        this.classList.add("fa-volume-down");
-      }
-      wavesurfer.toggleMute();
-    });
-}
-
-// stop-button event handler
-function stopButtonEventHandler() {
-  document.querySelector(".stop-button").addEventListener("click", function() {
-    wavesurfer.stop();
-    if (wavesurfer.isPlaying()) {
-      // TODO this doesnt change pause to play when stop button is clicked
-      let pp = document.querySelector(".play-pause-button");
-      pp.classList.remove("fa-pause");
-      pp.classList.add("fa-play");
+// jQuery simpleWeather and display it on success, else display error
+function initWeather() {
+  $.simpleWeather({
+    zipcode: '',
+    woeid: locations[0],
+    location: '',
+    unit: 'c',
+    success: function(weather) {
+      $('.weather-location').html(`${weather.city}, ${weather.region}`);
+      $('.weather-icon').html(`<i class="wi wi-yahoo-${weather.code}"></i>`);
+      $('.weather-temperature').html(
+        `${weather.temp}&deg${weather.units.temp}`
+      );
+      $('.weather-description').html(`${weather.currently}`);
+    },
+    error: function(error) {
+      $('.weather-location').html(`<p>${error}</p>`);
     }
   });
 }
 
-// volume-slider event handler
-function volumeEventHandler() {
-  document
-    .querySelector(".volume-slider")
-    .addEventListener("change", function() {
-      wavesurfer.setVolume(this.value / 100);
-      let voltext = document.querySelector(".volume-text");
-      voltext.innerHTML = `${this.value}%`;
-    });
+// Create the clock, display date and time and greet based on time of day
+function initClock() {
+  var today = new Date();
+  var h = today.getHours();
+  var m = today.getMinutes();
+  var s = today.getSeconds();
+  var dd = today.getDate();
+  var mm = today.getMonth() + 1;
+  var yyyy = today.getFullYear();
+
+  if (dd < 10) dd = '0' + dd;
+  if (mm < 10) mm = '0' + mm;
+  if (h < 10) h = '0' + h;
+  if (m < 10) m = '0' + m;
+  if (s < 10) s = '0' + s;
+
+  $('.time-hours').html(`${h}:${m}:${s}`);
+  $('.date-day').html(`${dd}.${mm}.${yyyy}`);
+
+  if (h < 12) {
+    $('.greetings-title').html('good morning');
+  } else if (h >= 12 && h < 19) {
+    $('.greetings-title').html('good afternoon');
+  } else {
+    $('.greetings-title').html('good evening');
+  }
+
+  var t = setTimeout(initClock, 500);
 }
+
+$(document).ready(function() {
+  init();
+});
