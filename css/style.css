@@ -8,9 +8,11 @@ body {
 }
 
 figure:hover {
-  opacity: 0.8;
-  z-index: 1;
   cursor: pointer;
+  -webkit-transition: 0.2s all cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s all cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-box-shadow: 0 10px 25px 0 rgba(19, 30, 65, .1);
+  box-shadow: 0 10px 25px 0 rgba(2, 254, 165, 0.8);
 }
 
 figure {
