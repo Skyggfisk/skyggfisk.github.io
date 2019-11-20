@@ -11,8 +11,33 @@ figure:hover {
   cursor: pointer;
   -webkit-transition: 0.2s all cubic-bezier(0.4, 0, 0.2, 1);
   transition: 0.2s all cubic-bezier(0.4, 0, 0.2, 1);
-  -webkit-box-shadow: 0 10px 25px 0 rgba(19, 30, 65, .1);
+  -webkit-box-shadow: 0 10px 25px 0 rgba(19, 30, 65, 0.1);
   box-shadow: 0 10px 25px 0 rgba(2, 254, 165, 0.8);
+}
+
+/* Disabled link box */
+figure.disabled:hover {
+  cursor: default;
+  -webkit-transition: none;
+  transition: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+figure.disabled {
+  background-color: rgba(24, 28, 34, 0.3);
+}
+
+figure.disabled figcaption {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+figure.disabled img {
+  opacity: 0.1;
+}
+
+figure.disabled img:hover {
+  cursor: default;
 }
 
 figure {
