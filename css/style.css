@@ -1,6 +1,6 @@
 /* Put stuff here... */
 * {
-  font-family: 'Roboto Mono', monospace;
+  font-family: "Roboto Mono", monospace;
 }
 
 body {
@@ -86,7 +86,7 @@ figcaption {
 
   .box {
     display: grid;
-    grid-template-columns: repeat(2, 0.5fr);
+    grid-template-columns: repeat(3, 0.5fr);
     grid-auto-rows: auto;
     row-gap: 1em;
     column-gap: 1em;
